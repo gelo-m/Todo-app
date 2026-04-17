@@ -1,19 +1,35 @@
+import axiosClient from "../axios-client";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom"
-import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
+import { format } from "date-fns";
+import Pagination  from "../components/Pagination"; 
 
-export default function ListForm() {
+export default function List() {
     const navigate = useNavigate();
     const {id} = useParams();
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState(null);
+    const [counter, setCounter] = useState(0);
+    const [isChecked, setIsChecked] = useState(false);
+    const [listItem, setListItem] = useState([]);
+
+    const initialState = {
+        id: '',
+        list_id: '',
+        display_index: 0,
+        description: '',
+        is_complete: false,
+    }
+
     const [list, setList] = useState({
         id: '',
         user_id: '',
-        display_index: '',
+        display_index: 0,
         description: '',
+        detail: []
     });
+    const [listDetail, setListDetail] = useState(initialState);
     const {user, notification, setUser, setNotification} = useStateContext();
 
     if (id) {
@@ -24,7 +40,6 @@ export default function ListForm() {
             .then(({data}) => {
                 setLoading(false);
                 setList(data);
-                // console.log(user);
             })
             .catch(() => {
                 setLoading(false);
@@ -41,119 +56,131 @@ export default function ListForm() {
         }, [user]) 
     }
 
+    const handleChange = (e) => {
+        const isChecked = e.target.checked;
+        setIsChecked(isChecked);
+    };
+
     const handleListSave = (e) => {
         e.preventDefault();
-        if (user?.id) {
-        //     axiosClient.put(`/users/${user.id}`, user)
-        //     .then(() => {
-        //         setNotification('User was successfully updated!');
-        //         navigate('/users');
-        //     })
-        //     .catch(error => {
-        //         const response = error.response;
+        if (! user.id) return;
+        axiosClient.post('/lists', list)
+        .then(({data}) => {
+            setNotification('list was successfully created!');
+            setErrors('');
+            setList(data);
+        })
+        .catch(error => {
+            const response = error.response;
 
-        //         if (response && response.status === 422) {
-        //             setErrors(response.data.errors);
-        //         }
-        //     });
-        // } else {
-            axiosClient.post('/lists', list)
-            .then(() => {
-                setNotification('list was successfully created!');
-                setErrors('');
-            })
-            .catch(error => {
-                const response = error.response;
-
-                if (response && response.status === 422) {
-                    setErrors(response.data.errors);
-                }
-            });
-        }
+            if (response && response.status === 422) {
+                setErrors(response.data.errors);
+            }
+        });
     }
 
     const handleListDelete = (e) => {
         e.preventDefault();
     }
 
-    const handleListItemSave = (e) => {
+    const handleListDetailAdd = (e) => {
         e.preventDefault();
+        if (! user.id && ! list.detail.length === 0) return;
+
+        let listDetailData = {... listDetail};
+            listDetailData.list_id = list.id;
+            listDetailData.display_index = counter;
+            listDetailData.is_complete = isChecked ? 1 : 0;
+
+        // console.log(listDetailData);
+
+        axiosClient.post('/list-detail', listDetailData)
+        .then(({data}) => {
+            setNotification('Item was successfully created!');
+            setErrors('');
+            setListItem([...listItem, {...listDetailData}]);
+            setCounter(counter + 1);
+            setListDetail({... initialState});
+        })
+        .catch(error => {
+            const response = error.response;
+
+            if (response && response.status === 422) {
+                setErrors(response.data.errors);
+            }
+        });
     }
 
     const handleListItemDelete = (e) => {
         e.preventDefault();
     }
 
+    const handleCheckbox = (e) => {
+        e.preventDefault();
+        return true;
+    }
+
     return (
-        <>
-        {
-            list.id ? (
-                <h1>Update List: {list.description}</h1>
-            ) : (
+        <div>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                 <h1>Create new list</h1>
-            )
-        }
-        <div className="card animated fadeInDown">
-
-            {
-                loading && (
-                    <div className="text-center">Loading...</div>   
-                )
-            }
-
-            {
-                errors && <div className="alert">
-                    {
-                        Object.keys(errors).map(key => (
-                            <p key={key}>{errors[key][0]}</p>
-                        ))
-                    }
-                </div>
-            }
-            {
-                ! loading && (
-                <div className="list-parent">
-                    <div className="list-item">
-                    <input type="text" className="list-description" placeholder="Description" value={list.description} onChange={e => setList({...list, description: e.target.value})} />
-                    <button className="btn-add btn-margin" onClick={handleListSave}>Save</button>
-                    <button className="btn-delete btn-margin" onClick={handleListDelete}>Delete</button>
-                    </div>
-                    
-                    
-                </div>
-
-
-                )
-            }
-            
-            {/* {
-                loading && (
-                    <div className="text-center">Loading...</div>   
-                )
-            }
-            {
-                errors && <div className="alert">
-                    {
-                        Object.keys(errors).map(key => (
-                            <p key={key}>{errors[key][0]}</p>
-                        ))
-                    }
-                </div>
-            }
-            {
-                ! loading &&
-                <form onSubmit={onSubmit}>
-                    <input type="text" placeholder="Name" value={user.name} onChange={e => setUser({...user, name: e.target.value})} />
-                    <input type="email" placeholder="Email" value={user.email} onChange={e => setUser({...user, email: e.target.value})} />
-                    <input type="password" placeholder="Password" onChange={e => setUser({...user, password: e.target.value})} />
-                    <input type="password" placeholder="Password Confirmation" onChange={e => setUser({...user, password_confirmation: e.target.value})} />
-                    <button className="btn-save btn-margin">Save</button>
-                    <Link to={`/users`} className="btn-delete btn-margin">Cancel</Link>
-                </form>
-            }
-
-            <form action=""></form> */}
+            </div>
+            <div className="card animated fadeInDown">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>
+                                <div className="list-parent">
+                                    <div className="list-item">
+                                        <input type="text" className="list-description" placeholder="Enter title" value={list.description} onChange={e => setList({...list, description: e.target.value})} />
+                                        <button className="btn-add btn-margin" onClick={handleListSave}>Save</button>
+                                        { list.mode === 'view' && (<button className="btn-delete btn-margin" onClick={handleListDelete}>Delete</button>)}
+                                    </div>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                        <tbody>
+                            {
+                                listItem.map((items, index) => (
+                                    <tr key={index} draggable="true">
+                                        <td>
+                                            <div className="list-parent">
+                                                <div className="list-item">
+                                                    <label className="container">
+                                                        <input type="checkbox"
+                                                            checked={isChecked}
+                                                            onChange={handleChange}
+                                                        />
+                                                        <span className="checkmark"></span>
+                                                    </label>
+                                                    <input type="text" className="list-description" placeholder="Enter Title Item" value={items.description} onChange={e => setListDetail({...items, description: e.target.value})} />
+                                                    <button className="btn-delete btn-margin" onClick={handleListDetailAdd}>Remove</button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>)
+                            )}
+                            <tr>
+                                <td>
+                                    <div className="list-parent">
+                                        <div className="list-item">
+                                            <label className="container">
+                                                <input type="checkbox"
+                                                    checked={isChecked}
+                                                    onChange={handleChange}
+                                                />
+                                                <span className="checkmark"></span>
+                                            </label>
+                                            <input type="text" className="list-description" placeholder="Enter Title Item" value={listDetail.description} onChange={e => setListDetail({...listDetail, description: e.target.value})} />
+                                            <button className="btn-add btn-margin" onClick={handleListDetailAdd}>Add</button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                </table>
+            </div>
         </div>
-        </>
-    )
+    );
 }

@@ -19,7 +19,7 @@ class ListController extends Controller
      */
     public function index(Request $request)
     {
-        $lists = Lists::query()->paginate(10);;
+        $lists = Lists::query()->paginate(100);
         return ListResource::collection($lists);
     }
 

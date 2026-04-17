@@ -5,21 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Lists extends Model
+class ListDetail extends Model
 {
     use HasFactory;
 
-    protected $table = 'list';
+    protected $table = 'list_detail';
 
     protected $fillable = [
-        'user_id',
+        'list_id',
         'display_index',
         'description',
+        'is_complete'
     ];
-
-    public function listDetail()
-    {
-        return $this->hasMany(ListDetail::class, 'list_id', 'id');
-    }
-
 }

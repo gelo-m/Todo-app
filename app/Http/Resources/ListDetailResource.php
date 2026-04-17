@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ListResource extends JsonResource
+class ListDetailResource extends JsonResource
 {
     public static $wrap = false;
     /**
@@ -16,13 +16,11 @@ class ListResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'mode' => 'view',
             'id' => $this->id,
-            'user_id' => $this->user_id,
+            'list_id' => $this->list_id,
             'display_index' => $this->display_index,
             'description' => $this->description,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
-            'detail' => $this->listDetail
         ];
     }
 }

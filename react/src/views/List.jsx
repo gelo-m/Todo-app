@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
+import { format } from "date-fns";
 import Pagination  from "../components/Pagination";
+import { set } from "lodash";
 
 export default function List() {
     const [lists, setLists] = useState([]);
@@ -10,6 +12,7 @@ export default function List() {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [pages, setPages] = useState([]);
+    const [showPagination, setShowPagination] = useState(false);
     const {user, notification, setNotification, setUser} = useStateContext();
     
 
@@ -38,8 +41,6 @@ export default function List() {
     const loadTableData = (data) => {    
         let url = `/lists`;
 
-        console.log(user);
-
         if (typeof data === 'object' && data !== null) {
             const page = tablePage(data);
             setCurrentPage(page);
@@ -60,6 +61,8 @@ export default function List() {
             setLoading(false);
             setLists(data.data);
             setPages(data.meta.links);
+
+            setShowPagination(data.meta.total > data.meta.per_page ? true : false);
         }).catch(() => {
             setLoading(false);
         });
@@ -85,41 +88,30 @@ export default function List() {
                     </div>
             </div>
             <div className="card animated fadeInDown">
-                {
-                    ! loading && (
-                        <div className="text-center">Loading ...</div>
-                    )
-                }
-            </div>
-            {/* <div className="card animated fadeInDown">
                 <table>
                     <thead>
                         <tr>
-                            <th>Description</th>
-                            <th>Create Date</th>
-                            <th>Actions</th>
+                            <th>Title</th>
+                            <th style={{textAlign: 'right'}}>Date</th>
+                            <th colSpan={2} style={{textAlign: 'right'}}>Acton</th>
                         </tr>
                     </thead>
                     {
                         loading ? (
                             <tbody>
                                 <tr>
-                                    <td colSpan="4" className="text-center">Loading ...</td>
+                                    <td colSpan="3" className="text-center">Loading ...</td>
                                 </tr>
                             </tbody>
                         ) : (
                             <tbody>
                                 {
-                                    lists.map((u, index) => (
-                                        <tr key={index}>
-                                            <td>{u.id}</td>
-                                            <td>{u.name}</td>
-                                            <td>{u.email}</td>
-                                            <td>{createdAt(u.created_at)}</td>
-                                            <td>
-                                                <Link to={`/lists/${u.id}`} className="btn-detail">View</Link>
-                                                &nbsp;
-                                                <Link to={`/lists/${u.id}`} className="btn-edit">Edit</Link>
+                                    lists.map((item, index) => (
+                                        <tr key={index} draggable="true">
+                                            <td>{item.description}</td>
+                                            <td style={{textAlign: 'right'}}>{createdAt(item.created_at)}</td>
+                                            <td style={{textAlign: 'right'}}>
+                                                <Link to={`/lists/${item.id}`} className="btn-save">View</Link>
                                                 &nbsp;
                                                 <button onClick={ev => onDelete(u)} className="btn-delete">Delete</button>
                                             </td>
@@ -130,8 +122,18 @@ export default function List() {
                         )
                     }
                 </table>
-                <Pagination data={pages} onTrigger={loadTableData}></Pagination>
-            </div> */}
+                {
+                    showPagination && (<Pagination data={pages} onTrigger={loadTableData}></Pagination>)
+                }
+            </div>
         </div>
     );
+}
+
+function tablePage(data) {
+    const urlString = data.url;
+    const position = parseInt(urlString.search("page=")) + 5;
+    const page = urlString.substring(position);
+
+    return page;
 }

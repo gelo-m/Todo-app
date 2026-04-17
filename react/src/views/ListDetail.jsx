@@ -1,136 +1,174 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom"
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
-import { format } from "date-fns";
-import Pagination  from "../components/Pagination";
 
-export default function Users() {
-    const [users, setUsers] = useState([]);
-    const [searchKeyword, setSearchKeyword] = useState("");
+export default function ListForm() {
+    const navigate = useNavigate();
+    const {id} = useParams();
+    const [parentId, setParentId] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [pages, setPages] = useState([]);
-    const {setNotification} = useStateContext();
-    
+    const [errors, setErrors] = useState(null);
+    const [list, setList] = useState({
+        id: '',
+        user_id: '',
+        display_index: 0,
+        description: '',
+        detail: []
+    });
+    const [listDetail, setListDetail] = useState({
+        id: '',
+        list_id: '',
+        display_index: 0,
+        description: '',
+        is_complete: false,
+    });
+    const {user, notification, setUser, setNotification} = useStateContext();
 
-    useEffect(() => {
-        loadTableData();
-    }, []);
+    if (id) {
+        useEffect(() => {
+            setLoading(true);
 
-    const createdAt = (date) => {
-        return format(new Date(date), "MM/dd/yyyy");
-    }
+            axiosClient.get(`/lists/${id}`)
+            .then(({data}) => {
+                setLoading(false);
+                setList(data);
+            })
+            .catch(() => {
+                setLoading(false);
+            })   
 
-    const onDelete = (u) => {
-        if (! window.confirm("Are you sure you want to delete this user ?")) {
-            return;
-        }
-
-        axiosClient.delete(`/users/${u.id}`)
-        .then(() => {
-            setNotification('User was successfully deleted!');
-            loadTableData(currentPage);
-        })
-    }
-
-    const loadTableData = (data) => {    
-        let url = `/users`;
-
-        if (typeof data === 'object' && data !== null) {
-            const page = tablePage(data);
-            setCurrentPage(page);
-
-            url = `/users?page=${page}`;
-        } else if (currentPage !== 1) {
-            url = `/users?page=${currentPage}`;
-        }
-
-        setLoading(true);
-        axiosClient.get(url, {
-            params: {
-                keyword: searchKeyword
+            
+        }, [user]) 
+    } else {
+        useEffect(() => {
+            if (user?.id) {
+                list.user_id = user.id;
+                list.display_index = user.lists_count == 0 ? 0 : + 1;
             }
-        })
+        }, [user]) 
+    }
+
+    const handleListSave = (e) => {
+        e.preventDefault();
+        if (! user.id) return;
+        //     axiosClient.put(`/users/${user.id}`, user)
+        //     .then(() => {
+        //         setNotification('User was successfully updated!');
+        //         navigate('/users');
+        //     })
+        //     .catch(error => {
+        //         const response = error.response;
+
+        //         if (response && response.status === 422) {
+        //             setErrors(response.data.errors);
+        //         }
+        //     });
+        // } else {
+        axiosClient.post('/lists', list)
         .then(({data}) => {
-            setLoading(false);
-            setUsers(data.data);
-            setPages(data.meta.links);
-        }).catch(() => {
-            setLoading(false);
+            setNotification('list was successfully created!');
+            setErrors('');
+            setList(data);
+        })
+        .catch(error => {
+            const response = error.response;
+
+            if (response && response.status === 422) {
+                setErrors(response.data.errors);
+            }
         });
     }
 
+    const handleListDelete = (e) => {
+        e.preventDefault();
+    }
+
+    const handleListDetailAdd = (e) => {
+        e.preventDefault();
+        if (! user.id && ! list.detail.length === 0) return;
+
+        let listDetailData = listDetail;
+            listDetailData.list_id = list.id;
+            listDetailData.is_complete = listDetail.is_complete ? 1 : 0;
+
+            console.log(listDetail);
+
+        axiosClient.post('/list-detail', listDetailData)
+        .then(({data}) => {
+            setNotification('Item was successfully created!');
+            setErrors('');
+            list.detail.push(data);
+        })
+        .catch(error => {
+            const response = error.response;
+
+            if (response && response.status === 422) {
+                setErrors(response.data.errors);
+            }
+        });
+    }
+
+    const handleListItemDelete = (e) => {
+        e.preventDefault();
+    }
+
     return (
-        <div>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                <h1>Users</h1>
-                <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                    <input 
-                        type="text" 
-                        className="search-input" 
-                        placeholder="Search user"
-                        onKeyDown={(e) => {
-                            setSearchKeyword(e.target.value)
-                            if (e.key === 'Enter') {
-                                loadTableData();
-                            }
-                          }} 
-                    />
-                    <Link to="/users/new" className="btn-add">Add new</Link>
-                    </div>
-            </div>
-            <div className="card animated fadeInDown">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Create Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
+        <>
+        {
+            list.id ? (
+                <h1>Update List: {list.description}</h1>
+            ) : (
+                <h1>Create new list</h1>
+            )
+        }
+        <div className="card animated fadeInDown">
+
+            {
+                loading && (
+                    <div className="text-center">Loading...</div>   
+                )
+            }
+
+            {
+                errors && <div className="alert">
                     {
-                        loading ? (
-                            <tbody>
-                                <tr>
-                                    <td colSpan="4" className="text-center">Loading ...</td>
-                                </tr>
-                            </tbody>
-                        ) : (
-                            <tbody>
-                                {
-                                    users.map((u, index) => (
-                                        <tr key={index}>
-                                            <td>{u.id}</td>
-                                            <td>{u.name}</td>
-                                            <td>{u.email}</td>
-                                            <td>{createdAt(u.created_at)}</td>
-                                            <td>
-                                                <Link to={`/users/${u.id}`} className="btn-detail">View</Link>
-                                                &nbsp;
-                                                <Link to={`/users/${u.id}`} className="btn-edit">Edit</Link>
-                                                &nbsp;
-                                                <button onClick={ev => onDelete(u)} className="btn-delete">Delete</button>
-                                            </td>
-                                        </tr>
-                                    )) 
-                                }
-                            </tbody>
+                        Object.keys(errors).map(key => (
+                            <p key={key}>{errors[key][0]}</p>
+                        ))
+                    }
+                </div>
+            }
+            {
+                ! loading && (
+                <div className="list-parent">
+                    <div className="list-item">
+                        <input type="text" className="list-description" placeholder="Enter Title" value={list.description} onChange={e => setList({...list, description: e.target.value})} />
+                        <button className="btn-add btn-margin" onClick={handleListSave}>Save</button>
+                        <button className="btn-delete btn-margin" onClick={handleListDelete}>Delete</button>
+                    </div>
+
+                    {
+                        list.detail.length > 0 && (
+                            list.detail.map((item, index) => {
+                                <div className="list-item detail" key={index}>
+                                    <div class="list-detail-item">{item.description}</div>
+                                </div>
+                            })                    
                         )
                     }
-                </table>
-                <Pagination data={pages} onTrigger={loadTableData}></Pagination>
-            </div>
+
+                    <div className="list-item detail">
+                        <input type="text" className="list-description" placeholder="Enter Title Item" value={listDetail.description} onChange={e => setListDetail({...listDetail, description: e.target.value})} />
+                        <button className="btn-add btn-margin" onClick={handleListDetailAdd}>Add</button>
+                    </div>
+                    
+                </div>
+
+
+                )
+            }
         </div>
-    );
-}
-
-function tablePage(data) {
-    const urlString = data.url;
-    const position = parseInt(urlString.search("page=")) + 5;
-    const page = urlString.substring(position);
-
-    return page;
+        </>
+    )
 }
