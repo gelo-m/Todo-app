@@ -20,6 +20,7 @@ class ListDetailResource extends JsonResource
             'list_id' => $this->list_id,
             'display_index' => $this->display_index,
             'description' => $this->description,
+            'is_complete' => $this->is_complete ? 1 : 0,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
         ];
     }

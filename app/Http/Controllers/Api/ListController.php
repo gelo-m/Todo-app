@@ -7,6 +7,7 @@ use App\Http\Requests\StoreListRequest;
 use App\Http\Requests\UpdateListRequest;
 use App\Http\Resources\ListResource;
 use App\Models\Lists;
+use App\Models\ListDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -19,7 +20,24 @@ class ListController extends Controller
      */
     public function index(Request $request)
     {
-        $lists = Lists::query()->paginate(100);
+        $filters = (object) $request->all();
+        $whereClause = [];
+
+        if (isset($filters->user_id) && $filters->user_id != '') {
+            $whereClause[] = ['user_id', $filters->user_id];
+        }
+
+        if (isset($filters->description) && $filters->description != '') {
+            $whereClause[] = ['description', $filters->description];
+        }
+
+        if (isset($filters->id) && $filters->id != '') {
+            $whereClause[] = ['id', $filters->id];
+            $lists = Lists::query()->where($whereClause)->get();
+        } else {
+            $lists = Lists::query()->where($whereClause)->paginate(100);
+        }
+
         return ListResource::collection($lists);
     }
 
@@ -70,6 +88,7 @@ class ListController extends Controller
      */
     public function destroy(Lists $list)
     {
+        ListDetail::where('list_id', $list->id)->delete();
         $list->delete();
 
         return response("", 204);

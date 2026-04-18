@@ -26,12 +26,8 @@ export default function List() {
         return format(new Date(date), "MM/dd/yyyy");
     }
 
-    const onDelete = (u) => {
-        if (! window.confirm("Are you sure you want to delete this list ?")) {
-            return;
-        }
-
-        axiosClient.delete(`/lists/${u.id}`)
+    const onDelete = (id) => {
+        axiosClient.delete(`/lists/${id}`)
         .then(() => {
             setNotification('List item was successfully deleted!');
             loadTableData(currentPage);
@@ -77,7 +73,7 @@ export default function List() {
                         type="text" 
                         className="search-input" 
                         placeholder="Search title ..."
-                        onKeyDown={(e) => {
+                        onKeyUp={(e) => {
                             setSearchDescription(e.target.value)
                             if (e.key === 'Enter') {
                                 loadTableData();
@@ -111,9 +107,9 @@ export default function List() {
                                             <td>{item.description}</td>
                                             <td style={{textAlign: 'right'}}>{createdAt(item.created_at)}</td>
                                             <td style={{textAlign: 'right'}}>
-                                                <Link to={`/lists/${item.id}`} className="btn-save">View</Link>
+                                                <Link to={`/lists/${item.id}`} className="btn-save">Edit</Link>
                                                 &nbsp;
-                                                <button onClick={ev => onDelete(u)} className="btn-delete">Delete</button>
+                                                <button onClick={ev => onDelete(item.id)} className="btn-delete">Delete</button>
                                             </td>
                                         </tr>
                                     )) 

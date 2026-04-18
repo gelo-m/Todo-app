@@ -28,6 +28,7 @@ class UpdateListDetailRequest extends FormRequest
             'list_id' => 'required',
             'display_index' => 'required',
             'description' => 'required',
+            'is_complete' => 'required',
         ];
     }
 }

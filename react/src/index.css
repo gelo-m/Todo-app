@@ -24,6 +24,7 @@ input {
     outline: 0;
     background: #ffffff;
     width: 100%;
+    border-radius: 5px;
     border: 2px solid #e6e6e6;
     margin: 0 0 15px;
     padding: 15px;
@@ -114,8 +115,8 @@ table {
 
 table > thead > tr > th {
     text-align: left;
-    padding: 0.5rem 0.5rem;
-    background-color: #efefef;
+    /* padding: 0.5rem 0.5rem; */
+    /* background-color: #efefef; */
 }
 
 table > tbody > tr > td {
@@ -283,6 +284,7 @@ table > tbody > tr > td {
     height: 50px;
     width: 100%;
     margin: 0px 5px 0px 0px;
+    flex: 1;
 }
 
 .list-parent {
@@ -291,6 +293,12 @@ table > tbody > tr > td {
 
 .list-item {
     display: flex;
+    gap: 10px;
+}
+
+.list-item-description {
+    display: flex;
+    gap: 10px;
 }
 
 .detail {
@@ -372,3 +380,54 @@ td .draggable-element:active {
     -ms-transform: rotate(45deg);
     transform: rotate(45deg);
   }
+
+  .completed {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  .add-item {
+    margin-top: 15px;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+  }
+
+  .list-item:hover {
+    background: #f9f9f9;
+  }
+
+  .card {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+
+  .list-item > input {
+    outline: 0;
+    background: inherit !important;
+    width: 100%;
+    /* border-radius: 5px; */
+    border: none !important;
+    margin: 0 0 15px;
+    padding: 0px !important;
+    box-sizing: border-box;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+.list-item-description > input {
+    outline: 0;
+    background: #ffffff;
+    width: 100%;
+    border-radius: 0px;
+    border: none;
+    border-bottom: solid 2px  #ccc;
+    margin: 0 0 15px !important;
+    padding: 5px;
+    box-sizing: border-box;
+    font-size: 20px !important;
+    transition: all 0.3s;
+}
+
+.list-item-description > input:focus {
+    border-color: #8104f6;
+}

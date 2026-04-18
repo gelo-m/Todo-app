@@ -42,7 +42,15 @@ const router = createBrowserRouter([
             {
                 path: 'lists/new',
                 element: <ListForm/>
-            }
+            },
+            {
+                path: '/lists/:id',
+                element: <ListForm key="ListUpdate"/>   
+            },
+            {
+                path: '/lists-detail/:id',
+                element: <ListForm key="ListDetailUpdate"/>   
+            },
         ] 
     },
 

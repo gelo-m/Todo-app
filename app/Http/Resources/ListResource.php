@@ -16,7 +16,6 @@ class ListResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'mode' => 'view',
             'id' => $this->id,
             'user_id' => $this->user_id,
             'display_index' => $this->display_index,

@@ -20,7 +20,7 @@ class ListDetailController extends Controller
     public function index(Request $request)
     {
         $filters = (object) $request->all();
-        $listDetailDetail = ListDetail::where('list_id', $filters->list_id)->get();
+        $listDetailDetail = ListDetail::where(['id' => $filters->id, 'list_id' => $filters->list_id])->get();
         return ListDetailResource::collection($listDetail);
     }
 
@@ -55,9 +55,10 @@ class ListDetailController extends Controller
      * @param  \App\Models\ListDetail  $listDetail
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateListDetailRequest $request, Lists $listDetail)
+    public function update(UpdateListDetailRequest $request, ListDetail $listDetail)
     {
         $data = $request->validated();
+        $data['is_complete'] = $request->is_complete ? 1 : 0;
         $listDetail->update($data);
 
         return new ListDetailResource($listDetail);
@@ -69,7 +70,7 @@ class ListDetailController extends Controller
      * @param  \App\Models\ListDetail  $listDetail
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Lists $listDetail)
+    public function destroy(ListDetail $listDetail)
     {
         $listDetail->delete();
 
