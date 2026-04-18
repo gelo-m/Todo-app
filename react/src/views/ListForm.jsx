@@ -253,7 +253,8 @@ export default function List() {
                                                 <label className="container">
                                                     <span className="checkmark"></span>
                                                 </label>
-                                                <input type="text" className="list-description" placeholder="Enter Title Item" 
+                                                <input
+                                                    type="text" className="list-description" placeholder="Enter item" 
                                                     value={listDetail.description}
                                                     onChange={e => setListDetail({...listDetail, user_id: user.id, list_id: list.id, description: e.target.value, display_index: counter})} />
                                                 <button className="btn-icon icon-green btn-margin" onClick={handleListDetailAdd}><IoIosAddCircle/></button>

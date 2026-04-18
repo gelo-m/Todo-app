@@ -204,7 +204,7 @@ table > tbody > tr > td.list-form {
 }
 
 #defaultLayout aside {
-    width: 240px;
+    width: 175px;
     background-color: #5b08a7;
     padding: 1rem
 }
@@ -291,6 +291,8 @@ table > tbody > tr > td.list-form {
     width: 100%;
     margin: 0px 5px 0px 0px;
     flex: 1;
+    border-bottom: solid 2px #ccc !important;
+    border-radius: 0px;
 }
 
 .list-description-item {
@@ -301,10 +303,6 @@ table > tbody > tr > td.list-form {
     border-radius: 0px !important;
     border-bottom: solid 2px #ccc !important;
 }
-
-/* .list-description-item:focus {
-    border-bottom: #00a762 !important;
-} */
 
 .list-parent {
     display: block;
@@ -447,7 +445,7 @@ td .draggable-element:active {
     transition: all 0.3s;
 }
 
-.list-item-description > input:focus, .list-description-item:focus {
+.list-item-description > input:focus, .list-description-item:focus, .list-description:focus {
     border-color: #00a762 !important;
 }
 
@@ -456,7 +454,14 @@ td .draggable-element:active {
     font-size: 30px;
     border: none;
     background-color: inherit;
+    cursor: default;
+    transition: 0.2s;
 }
+
+.icon-btn:hover {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
 
 .icon-green {
     color: #00a762;
@@ -484,3 +489,8 @@ tr.dragging {
     opacity: 0.5;
     cursor: grabbing;
 }
+
+tr:hover {
+    background-color: #f9f9f9;
+    cursor: pointer;
+  }

@@ -33,9 +33,9 @@ class ListController extends Controller
 
         if (isset($filters->id) && $filters->id != '') {
             $whereClause[] = ['id', $filters->id];
-            $lists = Lists::query()->where($whereClause)->get();
+            $lists = Lists::query()->where($whereClause)->orderBy('display_index')->get();
         } else {
-            $lists = Lists::query()->where($whereClause)->paginate(100);
+            $lists = Lists::query()->where($whereClause)->orderBy('display_index')->paginate(100);
         }
 
         return ListResource::collection($lists);

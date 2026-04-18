@@ -7,8 +7,10 @@ import Pagination  from "../components/Pagination";
 import { IoCreateOutline } from "react-icons/io5";
 import { FiEdit } from "react-icons/fi";
 import { MdDelete } from "react-icons/md";
+import { update } from "lodash";
 
 export default function List() {
+    const [draggedIndex, setDraggedIndex] = useState(0);
     const [lists, setLists] = useState([]);
     const [searchDescription, setSearchDescription] = useState("");
     const [loading, setLoading] = useState(false);
@@ -23,6 +25,33 @@ export default function List() {
             loadTableData();
         }
     }, [user]);
+
+    const handleDrop = (targetIndex) => {
+        const updated = [...lists];
+      
+        const draggedItem = updated[draggedIndex];
+
+        updated.splice(draggedIndex, 1);
+      
+        updated.splice(targetIndex, 0, draggedItem);
+      
+        const reordered = updated.map((item, index) => ({
+          ...item,
+          display_index: index
+        }));
+      
+        setLists(reordered);
+        saveOrder(reordered);
+    };
+
+    const saveOrder = (items) => {
+        axiosClient.patch('/lists-reorder', {
+            items: items.map(data => ({
+                id: data.id,
+                display_index: data.display_index
+            }))
+        });
+    };
 
     const createdAt = (date) => {
         return format(new Date(date), "MM/dd/yyyy");
@@ -88,11 +117,20 @@ export default function List() {
             <div className="card animated fadeInDown">
                 <table>
                     <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th style={{textAlign: 'right'}}>Date</th>
-                            <th colSpan={2} style={{textAlign: 'right'}}>Acton</th>
-                        </tr>
+                        {
+                            lists.length > 0 ? (
+                                <tr>
+                                    <th>Title</th>
+                                    <th style={{textAlign: 'right'}}>Date</th>
+                                    <th colSpan={2} style={{textAlign: 'right'}}>Acton</th>
+                                </tr>
+                            ) : (
+                                <tr>
+                                    <th colSpan={3}>No list yet, Create your first task !</th>
+                                </tr>
+                            )
+                        }
+                        
                     </thead>
                     {
                         loading ? (
@@ -105,7 +143,12 @@ export default function List() {
                             <tbody>
                                 {
                                     lists.map((item, index) => (
-                                        <tr key={index} draggable="true">
+                                        <tr key={index}
+                                            draggable
+                                            onDragStart={() => setDraggedIndex(index)}
+                                            onDragOver={(e) => e.preventDefault()}
+                                            onDrop={() => handleDrop(index)}
+                                        >
                                             <td>{item.description}</td>
                                             <td style={{textAlign: 'right'}}>{createdAt(item.created_at)}</td>
                                             <td style={{textAlign: 'right'}}>
