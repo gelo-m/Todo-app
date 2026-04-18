@@ -4,7 +4,40 @@ import { useNavigate, useParams, Link } from "react-router-dom"
 import { useStateContext } from "../contexts/ContextProvider";
 import { format } from "date-fns";
 import Pagination  from "../components/Pagination";
-import { IoMdAddCircleOutline } from "react-icons/io";
+import { IoCreateOutline } from "react-icons/io5";
+import { IoIosAddCircle } from "react-icons/io";
+import { FiEdit } from "react-icons/fi";
+import { MdDelete } from "react-icons/md";
+
+// function DebouncedInput(items, index) {
+//     const [inputValue, setInputValue] = useState('');
+//     const [debouncedValue, setDebouncedValue] = useState('');
+  
+//     useEffect(() => {
+//       // Set a timer to update the debounced value after 500ms
+//       const timer = setTimeout(() => {
+//         setDebouncedValue(inputValue);
+//         handleListDetailUpdate();
+//       }, 1000);
+  
+//       // Cleanup function: clears the timer if inputValue changes again before 500ms
+//       return () => clearTimeout(timer);
+//     }, [inputValue]);
+  
+//     return (
+//         <input 
+//             type="text" 
+//             className={`list-description ${items.is_complete ? 'completed' : ''}`}
+//             placeholder="Enter Title Item" 
+//             value={items.description}
+//             onChange={(e) => {
+//                 const updatedItems = [...listItem];
+//                 updatedItems[index].description = e.target.value;
+//                 setListItem(updatedItems);
+//             }}
+//         />
+//     );
+//   }
 
 export default function List() {
     const navigate = useNavigate();
@@ -26,7 +59,7 @@ export default function List() {
         list_id: '',
         display_index: 0,
         description: '',
-        is_complete: false
+        is_complete: false,
     });
 
     const {user, notification, setUser, setNotification} = useStateContext();
@@ -131,7 +164,6 @@ export default function List() {
         let data = item;
             data.is_complete ? 1 : 0;
 
-        console.log(data);
         axiosClient.put(`/list-detail/${item.id}`, data)
             .then(() => {
                 setNotification('Item updated!');
@@ -165,8 +197,8 @@ export default function List() {
                                 <div className="list-parent">
                                     <div className="list-item-description">
                                         <input type="text" className="list-description" placeholder="Enter title" value={list.description} onChange={e => setList({...list, description: e.target.value})} />
-                                        <button className="btn-add btn-margin" onClick={handleListSave}>Save</button>
-                                        { listItem.length < 1 && (<button className="btn-delete btn-margin" onClick={ev => onDelete(list.id)}>Delete</button>)}
+                                        <button className="btn-icon icon-green btn-margin" onClick={handleListSave}><IoCreateOutline/></button>
+                                        { listItem.length < 1 && (<button className="btn-icon icon-delete btn-margin" onClick={ev => onDelete(list.id)}><MdDelete/></button>)}
                                     </div>
                                 </div>
                             </th>
@@ -176,7 +208,7 @@ export default function List() {
                         {
                             listItem.map((items, index) => (
                                 <tr key={index} draggable="true">
-                                    <td>
+                                    <td className="list-form">
                                         <div className="list-parent">
                                             <div className="list-item">
                                                 <label className="container">
@@ -187,12 +219,14 @@ export default function List() {
                                                             const updatedItems = [...listItem];
                                                             updatedItems[index].is_complete = ! updatedItems[index].is_complete;
                                                             setListItem(updatedItems);
-                                                        }}
+                                                            handleListDetailUpdate(items);
+                                                        }}  
                                                     />
                                                     <span className="checkmark"></span>
                                                 </label>
+                                                {/* <DebouncedInput items={items} index={index}></DebouncedInput> */}
                                                 <input type="text" 
-                                                    className={`list-description ${items.is_complete ? 'completed' : ''}`}
+                                                    className={`list-description-item ${items.is_complete ? 'completed' : ''}`}
                                                     placeholder="Enter Title Item" 
                                                     value={items.description}
                                                     onChange={(e) => {
@@ -201,8 +235,8 @@ export default function List() {
                                                         setListItem(updatedItems);
                                                     }}
                                                 />
-                                                <button className="btn-add btn-margin" onClick={() => handleListDetailUpdate(items)}>Save</button>
-                                                <button className="btn-delete btn-margin" onClick={() => handleListDetailRemove(items)}>Remove</button>
+                                                <button className="btn-icon icon-green btn-margin" onClick={() => handleListDetailUpdate(items)}><IoCreateOutline/></button>
+                                                <button className="btn-icon icon-delete btn-margin" onClick={() => handleListDetailRemove(items)}><MdDelete/></button>
                                             </div>
                                         </div>
                                     </td>
@@ -222,7 +256,7 @@ export default function List() {
                                                 <input type="text" className="list-description" placeholder="Enter Title Item" 
                                                     value={listDetail.description}
                                                     onChange={e => setListDetail({...listDetail, user_id: user.id, list_id: list.id, description: e.target.value, display_index: counter})} />
-                                                <button className="btn-add btn-margin" onClick={handleListDetailAdd}>Add</button>
+                                                <button className="btn-icon icon-green btn-margin" onClick={handleListDetailAdd}><IoIosAddCircle/></button>
                                             </div>
                                         </div>
                                     </td>

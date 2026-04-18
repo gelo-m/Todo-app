@@ -125,6 +125,12 @@ table > tbody > tr > td {
     white-space: nowrap;
 }
 
+table > tbody > tr > td.list-form {
+    padding: opx;
+    border-bottom: none;
+    white-space: nowrap;
+}
+
 .card {
     background-color: #FFF;
     border-radius: 0.5rem;
@@ -276,7 +282,7 @@ table > tbody > tr > td {
 
 .search-input {
     height: 50px;
-    width: 65%;
+    width: 80%;
     margin: 0 0 0px !important;
 }
 
@@ -286,6 +292,19 @@ table > tbody > tr > td {
     margin: 0px 5px 0px 0px;
     flex: 1;
 }
+
+.list-description-item {
+    height: 50px;
+    width: 100%;
+    margin: 0px 5px 0px 0px;
+    flex: 1;
+    border-radius: 0px !important;
+    border-bottom: solid 2px #ccc !important;
+}
+
+/* .list-description-item:focus {
+    border-bottom: #00a762 !important;
+} */
 
 .list-parent {
     display: block;
@@ -342,6 +361,7 @@ td .draggable-element:active {
     left: 0;
     height: 25px;
     width: 25px;
+    border-radius: 50%;
     background-color: #eee;
   }
   
@@ -405,8 +425,7 @@ td .draggable-element:active {
     outline: 0;
     background: inherit !important;
     width: 100%;
-    /* border-radius: 5px; */
-    border: none !important;
+    border: none;
     margin: 0 0 15px;
     padding: 0px !important;
     box-sizing: border-box;
@@ -420,7 +439,7 @@ td .draggable-element:active {
     width: 100%;
     border-radius: 0px;
     border: none;
-    border-bottom: solid 2px  #ccc;
+    border-bottom: solid 2px #ccc;
     margin: 0 0 15px !important;
     padding: 5px;
     box-sizing: border-box;
@@ -428,6 +447,40 @@ td .draggable-element:active {
     transition: all 0.3s;
 }
 
-.list-item-description > input:focus {
-    border-color: #8104f6;
+.list-item-description > input:focus, .list-description-item:focus {
+    border-color: #00a762 !important;
+}
+
+.btn-icon {
+    padding: 5px 0px 0px 0px;
+    font-size: 30px;
+    border: none;
+    background-color: inherit;
+}
+
+.icon-green {
+    color: #00a762;
+}
+
+.icon-delete {
+    color: rgb(241, 70, 40);
+    font-size: 25px;
+}
+
+.icon-orange {
+    color: orange;
+    font-size: 25px;
+}
+
+td {
+    cursor: grab;
+}
+
+td:active {
+    cursor: grabbing;
+}
+  
+tr.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
 }

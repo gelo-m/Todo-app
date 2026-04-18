@@ -31,12 +31,12 @@ export default function DefaultLayout() {
             <aside>
                 {/* <Link to="/dashboard">Dashboard</Link> */}
                 {/* <Link to="/users">Users</Link> */}
-                <Link to="/lists">My todo lists</Link>
+                <Link to="/lists">My Todo List</Link>
             </aside>
             <div className="content">
                 <header>
-                    <div>Todo App</div>
-                    <div>
+                    <div></div>
+                    <div style={{margin: '2px'}}>
                         {user.name}
                         <a href="#" onClick={onLogout} className="btn-logout">Logout</a>
                     </div>

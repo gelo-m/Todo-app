@@ -4,7 +4,9 @@ import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
 import { format } from "date-fns";
 import Pagination  from "../components/Pagination";
-import { set } from "lodash";
+import { IoCreateOutline } from "react-icons/io5";
+import { FiEdit } from "react-icons/fi";
+import { MdDelete } from "react-icons/md";
 
 export default function List() {
     const [lists, setLists] = useState([]);
@@ -67,7 +69,7 @@ export default function List() {
     return (
         <div>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                <h1>Lists</h1>
+                <h1>My Todo List</h1>
                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
                     <input 
                         type="text" 
@@ -80,7 +82,7 @@ export default function List() {
                             }
                           }} 
                     />
-                    <Link to="/lists/new" className="btn-add">Create New</Link>
+                    <Link to="/lists/new" className="btn-icon icon-add icon-green"><IoCreateOutline /></Link>
                     </div>
             </div>
             <div className="card animated fadeInDown">
@@ -107,9 +109,9 @@ export default function List() {
                                             <td>{item.description}</td>
                                             <td style={{textAlign: 'right'}}>{createdAt(item.created_at)}</td>
                                             <td style={{textAlign: 'right'}}>
-                                                <Link to={`/lists/${item.id}`} className="btn-save">Edit</Link>
+                                                <Link to={`/lists/${item.id}`} className="btn-icon icon-orange"><FiEdit /></Link>
                                                 &nbsp;
-                                                <button onClick={ev => onDelete(item.id)} className="btn-delete">Delete</button>
+                                                <button onClick={ev => onDelete(item.id)} className="btn-icon icon-delete"><MdDelete /></button>
                                             </td>
                                         </tr>
                                     )) 
