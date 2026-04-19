@@ -19,7 +19,7 @@ class Lists extends Model
 
     public function listDetail()
     {
-        return $this->hasMany(ListDetail::class, 'list_id', 'id');
+        return $this->hasMany(ListDetail::class, 'list_id', 'id')->orderBy('display_index', 'asc');
     }
 
 }

@@ -14,11 +14,13 @@ class ListReorderController extends Controller
 {
     public function reorder(Request $request)
     {
+        $indexStartAt = $request->indexStartAt == 1 ? 0 : $request->indexStartAt;
+
         foreach ($request->items as $key => $item) {
             Lists::where('id', $item['id'])
-                ->update(['display_index' => $key]);
+                ->update(['display_index' => $indexStartAt + $key]);
         }
-    
+
         return response()->json(['message' => 'Order updated']);
     }
 

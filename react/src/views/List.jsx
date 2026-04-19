@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
@@ -9,6 +9,7 @@ import { FiEdit } from "react-icons/fi";
 import { MdDelete } from "react-icons/md";
 
 export default function List() {
+    const { user, notification, displayIndex, setUser, setNotification, setDisplayIndex } = useStateContext();
     const [draggedIndex, setDraggedIndex] = useState(0);
     const [lists, setLists] = useState([]);
     const [searchDescription, setSearchDescription] = useState("");
@@ -17,7 +18,7 @@ export default function List() {
     const [pages, setPages] = useState([]);
     const [showPagination, setShowPagination] = useState(false);
     const [lastPage, setLastPage] = useState(0);
-    const { user, notification, displayIndex, setUser, setNotification, setDisplayIndex } = useStateContext();
+    const [indexStartAt, setIndexStartAt] = useState(0);
 
     useEffect(() => {
         if (user?.id) {
@@ -30,8 +31,8 @@ export default function List() {
     
         if (typeof data === 'number' && data !== null) {
             url = `/lists?page=${data}`;
-        } else if (currentPage !== 1) {
-            url = `/lists?page=${currentPage}`;
+        } else if (data !== 1) {
+            url = `/lists?page=${data}`;
         }
 
         // if (typeof data === 'object' && data !== null) {
@@ -43,6 +44,7 @@ export default function List() {
         //     url = `/lists?page=${currentPage}`;
         // }
 
+        setCurrentPage(data);
         setLoading(true);
         axiosClient.get(url, {
             params: {
@@ -51,14 +53,14 @@ export default function List() {
             }
         })
         .then(({data}) => {
-            setLoading(false);
-
             setLists(data.data);
             setPages(data.meta.links);
             setDisplayIndex(data.meta.total);
             setLastPage(data.meta.last_page);
 
             setShowPagination(data.meta.total > data.meta.per_page ? true : false);
+            setIndexStartAt(data.meta.from);
+            setLoading(false);
         }).catch(() => {
             setLoading(false);
         });
@@ -84,6 +86,7 @@ export default function List() {
 
     const saveOrder = (items) => {
         axiosClient.patch('/lists-reorder', {
+            indexStartAt: indexStartAt,
             items: items.map(data => ({
                 id: data.id,
                 display_index: data.display_index
