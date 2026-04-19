@@ -214,6 +214,8 @@ table > tbody > tr > td.list-form {
     padding: 0.75rem 1rem;
     border-radius: 6px;
     color: white;
+    font-size: 18px;
+    font-weight: 600;
     text-decoration: none;
     transition: all 0.2s;
 }
@@ -360,7 +362,7 @@ td .draggable-element:active {
     height: 25px;
     width: 25px;
     border-radius: 50%;
-    background-color: #eee;
+    background-color: #b3a3c0;
   }
   
   /* On mouse-over, add a grey background color */
@@ -370,7 +372,7 @@ td .draggable-element:active {
   
   /* When the checkbox is checked, add a blue background */
   .container input:checked ~ .checkmark {
-    background-color: #2196F3;
+    background-color: #724993;
   }
   
   /* Create the checkmark/indicator (hidden when not checked) */
@@ -490,7 +492,7 @@ tr.dragging {
     cursor: grabbing;
 }
 
-tr:hover {
+.list:hover {
     background-color: #f9f9f9;
     cursor: pointer;
-  }
+}

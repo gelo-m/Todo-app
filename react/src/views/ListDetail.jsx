@@ -1,21 +1,51 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom"
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
+import { useState, useEffect } from "react";
+import { IoIosAddCircle } from "react-icons/io";
+import { MdDelete } from "react-icons/md";
+import { IoCreateOutline } from "react-icons/io5";
 
-export default function ListForm() {
-    const navigate = useNavigate();
-    const {id} = useParams();
-    const [parentId, setParentId] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [errors, setErrors] = useState(null);
-    const [list, setList] = useState({
-        id: '',
-        user_id: '',
-        display_index: 0,
-        description: '',
-        detail: []
-    });
+export default function ListDetailData({data, user}) {
+// function DebouncedInput(items, index) {
+//     const [inputValue, setInputValue] = useState('');
+//     const [debouncedValue, setDebouncedValue] = useState('');
+  
+//     useEffect(() => {
+//       // Set a timer to update the debounced value after 500ms
+//       const timer = setTimeout(() => {
+//         setDebouncedValue(inputValue);
+//         handleListDetailUpdate();
+//       }, 1000);
+  
+//       // Cleanup function: clears the timer if inputValue changes again before 500ms
+//       return () => clearTimeout(timer);
+//     }, [inputValue]);
+  
+//     return (
+//         <input 
+//             type="text" 
+//             className={`list-description ${items.is_complete ? 'completed' : ''}`}
+//             placeholder="Enter Title Item" 
+//             value={items.description}
+//             onChange={(e) => {
+//                 const updatedItems = [...listItem];
+//                 updatedItems[index].description = e.target.value;
+//                 setListItem(updatedItems);
+//             }}
+//         />
+//     );
+// }
+
+    useEffect(() => {
+        if (data) {
+            setListItem(data.detail);
+        }
+    }, [data]);
+
+    const {setNotification} = useStateContext();
+    const [draggedIndex, setDraggedIndex] = useState(0);
+    const [counter, setCounter] = useState(0);
+    const [listItem, setListItem] = useState([]);
     const [listDetail, setListDetail] = useState({
         id: '',
         list_id: '',
@@ -23,82 +53,54 @@ export default function ListForm() {
         description: '',
         is_complete: false,
     });
-    const {user, notification, setUser, setNotification} = useStateContext();
+    const [isChecked, setIsChecked] = useState(false);
+    const handleDrop = (targetIndex) => {
+        const updated = [...listItem];
+      
+        const draggedItem = updated[draggedIndex];
 
-    if (id) {
-        useEffect(() => {
-            setLoading(true);
+        updated.splice(draggedIndex, 1);
+      
+        updated.splice(targetIndex, 0, draggedItem);
+      
+        const reordered = updated.map((item, index) => ({
+          ...item,
+          display_index: index
+        }));
+      
+        setListItem(reordered);
+        saveOrder(reordered);
+    };
 
-            axiosClient.get(`/lists/${id}`)
-            .then(({data}) => {
-                setLoading(false);
-                setList(data);
-            })
-            .catch(() => {
-                setLoading(false);
-            })   
-
-            
-        }, [user]) 
-    } else {
-        useEffect(() => {
-            if (user?.id) {
-                list.user_id = user.id;
-                list.display_index = user.lists_count == 0 ? 0 : + 1;
-            }
-        }, [user]) 
-    }
-
-    const handleListSave = (e) => {
-        e.preventDefault();
-        if (! user.id) return;
-        //     axiosClient.put(`/users/${user.id}`, user)
-        //     .then(() => {
-        //         setNotification('User was successfully updated!');
-        //         navigate('/users');
-        //     })
-        //     .catch(error => {
-        //         const response = error.response;
-
-        //         if (response && response.status === 422) {
-        //             setErrors(response.data.errors);
-        //         }
-        //     });
-        // } else {
-        axiosClient.post('/lists', list)
-        .then(({data}) => {
-            setNotification('list was successfully created!');
-            setErrors('');
-            setList(data);
-        })
-        .catch(error => {
-            const response = error.response;
-
-            if (response && response.status === 422) {
-                setErrors(response.data.errors);
-            }
+    const saveOrder = (items) => {
+        axiosClient.patch('/list-detail-reorder', {
+            items: items.map(data => ({
+                id: data.id,
+                list_id: data.list_id,
+                display_index: data.display_index
+            }))
         });
-    }
-
-    const handleListDelete = (e) => {
-        e.preventDefault();
-    }
+    };
 
     const handleListDetailAdd = (e) => {
         e.preventDefault();
-        if (! user.id && ! list.detail.length === 0) return;
 
-        let listDetailData = listDetail;
-            listDetailData.list_id = list.id;
-            listDetailData.is_complete = listDetail.is_complete ? 1 : 0;
+        if (! user.id || ! data.id || listDetail.description == '') return;
 
-            console.log(listDetail);
+        setListDetail({
+            ...listDetail,
+            is_complete: isChecked ? 1 : 0
+        });
 
-        axiosClient.post('/list-detail', listDetailData)
+        axiosClient.post('/list-detail', listDetail)
         .then(({data}) => {
+            // setErrors('');
+
             setNotification('Item was successfully created!');
-            setErrors('');
-            list.detail.push(data);
+            setListItem([...listItem, {...listDetail, id: data.id}]);
+            setListDetail({ ...listDetail, description: ''});
+            setCounter(counter + 1);
+
         })
         .catch(error => {
             const response = error.response;
@@ -109,66 +111,92 @@ export default function ListForm() {
         });
     }
 
-    const handleListItemDelete = (e) => {
-        e.preventDefault();
+    const handleListDetailUpdate = (item) => {
+        if (! item.id) return;
+
+        let data = item;
+            data.is_complete ? 1 : 0;
+
+        axiosClient.put(`/list-detail/${item.id}`, data)
+            .then(() => {
+                setNotification('Item updated!');
+            });
+    }
+
+    const handleListDetailRemove = (data) => {
+        axiosClient.delete(`/list-detail/${data.id}`)
+        .then(() => {
+            const updatedItems = listItem.filter(item => data.id !== item.id);
+            setListItem(updatedItems);
+            setNotification('Item was successfully deleted!');
+        })
     }
 
     return (
         <>
-        {
-            list.id ? (
-                <h1>Update List: {list.description}</h1>
-            ) : (
-                <h1>Create new list</h1>
-            )
-        }
-        <div className="card animated fadeInDown">
-
             {
-                loading && (
-                    <div className="text-center">Loading...</div>   
-                )
-            }
-
-            {
-                errors && <div className="alert">
-                    {
-                        Object.keys(errors).map(key => (
-                            <p key={key}>{errors[key][0]}</p>
-                        ))
-                    }
-                </div>
-            }
-            {
-                ! loading && (
-                <div className="list-parent">
-                    <div className="list-item">
-                        <input type="text" className="list-description" placeholder="Enter Title" value={list.description} onChange={e => setList({...list, description: e.target.value})} />
-                        <button className="btn-add btn-margin" onClick={handleListSave}>Save</button>
-                        <button className="btn-delete btn-margin" onClick={handleListDelete}>Delete</button>
-                    </div>
-
-                    {
-                        list.detail.length > 0 && (
-                            list.detail.map((item, index) => {
-                                <div className="list-item detail" key={index}>
-                                    <div class="list-detail-item">{item.description}</div>
+                listItem.length > 0 && listItem.map((items, index) => (
+                    <tr key={index} 
+                        draggable
+                        onDragStart={() => setDraggedIndex(index)}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={() => handleDrop(index)}
+                    >
+                        <td className="list-form">
+                            <div className="list-parent">
+                                <div className="list-item">
+                                    <label className="container">
+                                        <input
+                                            type="checkbox"
+                                            checked={items.is_complete}
+                                            onChange={() => {
+                                                const updatedItems = [...listItem];
+                                                updatedItems[index].is_complete = ! updatedItems[index].is_complete;
+                                                setListItem(updatedItems);
+                                                handleListDetailUpdate(items);
+                                            }}  
+                                        />
+                                        <span className="checkmark"></span>
+                                    </label>
+                                    <input type="text" 
+                                        className={`list-description-item ${items.is_complete ? 'completed' : ''}`}
+                                        placeholder="Enter Title Item" 
+                                        value={items.description}
+                                        onChange={(e) => {
+                                            const updatedItems = [...listItem];
+                                            updatedItems[index].description = e.target.value;
+                                            setListItem(updatedItems);
+                                        }}
+                                    />
+                                    <button className="btn-icon icon-green btn-margin" onClick={() => handleListDetailUpdate(items)}><IoCreateOutline/></button>
+                                    <button className="btn-icon icon-delete btn-margin" onClick={() => handleListDetailRemove(items)}><MdDelete/></button>
                                 </div>
-                            })                    
-                        )
-                    }
-
-                    <div className="list-item detail">
-                        <input type="text" className="list-description" placeholder="Enter Title Item" value={listDetail.description} onChange={e => setListDetail({...listDetail, description: e.target.value})} />
-                        <button className="btn-add btn-margin" onClick={handleListDetailAdd}>Add</button>
-                    </div>
-                    
-                </div>
-
-
+                            </div>
+                        </td>
+                    </tr>
+                    )
                 )
             }
-        </div>
+            {
+                data.id && (
+                    <tr>
+                        <td>
+                            <div className="list-parent">
+                                <div className="list-item">
+                                    <label className="container">
+                                        <span className="checkmark"></span>
+                                    </label>
+                                    <input
+                                        type="text" className="list-description" placeholder="Enter item" 
+                                        value={listDetail.description}
+                                        onChange={e => setListDetail({...listDetail, user_id: user.id, list_id: data.id, description: e.target.value, display_index: counter})} />
+                                    <button className="btn-icon icon-green btn-margin" onClick={handleListDetailAdd}><IoIosAddCircle/></button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                )
+            } 
         </>
     )
 }

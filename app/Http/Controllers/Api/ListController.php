@@ -9,6 +9,7 @@ use App\Http\Resources\ListResource;
 use App\Models\Lists;
 use App\Models\ListDetail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class ListController extends Controller
@@ -23,6 +24,7 @@ class ListController extends Controller
         $filters = (object) $request->all();
         $whereClause = [];
 
+
         if (isset($filters->user_id) && $filters->user_id != '') {
             $whereClause[] = ['user_id', $filters->user_id];
         }
@@ -31,9 +33,11 @@ class ListController extends Controller
             $whereClause[] = ['description', $filters->description];
         }
 
+        $whereClause[] = ['user_id', Auth::user()->id];
+
         if (isset($filters->id) && $filters->id != '') {
             $whereClause[] = ['id', $filters->id];
-            $lists = Lists::query()->where($whereClause)->orderBy('display_index')->get();
+            $lists = Lists::query()->where($whereClause)->with('listDetail')->orderBy('display_index')->get();
         } else {
             $lists = Lists::query()->where($whereClause)->orderBy('display_index')->paginate(100);
         }
@@ -51,7 +55,7 @@ class ListController extends Controller
     {
         $data = $request->validated();
         $list = Lists::create($data);
-        return response(new ListResource($list), 201);
+        return response(new ListResource($list->load('listDetail')), 201);
     }
 
     /**

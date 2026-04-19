@@ -17,14 +17,44 @@ export default function List() {
     const [currentPage, setCurrentPage] = useState(1);
     const [pages, setPages] = useState([]);
     const [showPagination, setShowPagination] = useState(false);
-    const {user, notification, setNotification, setUser} = useStateContext();
-    
+    const { user, notification, displayIndex, setUser, setNotification, setDisplayIndex } = useStateContext();
 
     useEffect(() => {
         if (user?.id) {
             loadTableData();
         }
     }, [user]);
+
+    const loadTableData = (data) => {    
+        let url = `/lists`;
+
+        if (typeof data === 'object' && data !== null) {
+            const page = tablePage(data);
+            setCurrentPage(page);
+
+            url = `/lists?page=${page}`;
+        } else if (currentPage !== 1) {
+            url = `/lists?page=${currentPage}`;
+        }
+
+        setLoading(true);
+        axiosClient.get(url, {
+            params: {
+                user_id: user.id,
+                description: searchDescription
+            }
+        })
+        .then(({data}) => {
+            setLoading(false);
+            setLists(data.data);
+            setPages(data.meta.links);
+            setDisplayIndex(data.meta.total);
+
+            setShowPagination(data.meta.total > data.meta.per_page ? true : false);
+        }).catch(() => {
+            setLoading(false);
+        });
+    }
 
     const handleDrop = (targetIndex) => {
         const updated = [...lists];
@@ -65,36 +95,6 @@ export default function List() {
         })
     }
 
-    const loadTableData = (data) => {    
-        let url = `/lists`;
-
-        if (typeof data === 'object' && data !== null) {
-            const page = tablePage(data);
-            setCurrentPage(page);
-
-            url = `/lists?page=${page}`;
-        } else if (currentPage !== 1) {
-            url = `/lists?page=${currentPage}`;
-        }
-
-        setLoading(true);
-        axiosClient.get(url, {
-            params: {
-                user_id: user.id,
-                description: searchDescription
-            }
-        })
-        .then(({data}) => {
-            setLoading(false);
-            setLists(data.data);
-            setPages(data.meta.links);
-
-            setShowPagination(data.meta.total > data.meta.per_page ? true : false);
-        }).catch(() => {
-            setLoading(false);
-        });
-    }
-
     return (
         <div>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
@@ -126,7 +126,7 @@ export default function List() {
                                 </tr>
                             ) : (
                                 <tr>
-                                    <th colSpan={3}>No list yet, Create your first task !</th>
+                                    <th colSpan={3}>No list yet, Create your first list !</th>
                                 </tr>
                             )
                         }
@@ -143,7 +143,8 @@ export default function List() {
                             <tbody>
                                 {
                                     lists.map((item, index) => (
-                                        <tr key={index}
+                                        <tr className="list"
+                                            key={index}
                                             draggable
                                             onDragStart={() => setDraggedIndex(index)}
                                             onDragOver={(e) => e.preventDefault()}
