@@ -7,7 +7,6 @@ import Pagination  from "../components/Pagination";
 import { IoCreateOutline } from "react-icons/io5";
 import { FiEdit } from "react-icons/fi";
 import { MdDelete } from "react-icons/md";
-import { update } from "lodash";
 
 export default function List() {
     const [draggedIndex, setDraggedIndex] = useState(0);
@@ -17,6 +16,7 @@ export default function List() {
     const [currentPage, setCurrentPage] = useState(1);
     const [pages, setPages] = useState([]);
     const [showPagination, setShowPagination] = useState(false);
+    const [lastPage, setLastPage] = useState(0);
     const { user, notification, displayIndex, setUser, setNotification, setDisplayIndex } = useStateContext();
 
     useEffect(() => {
@@ -25,17 +25,23 @@ export default function List() {
         }
     }, [user]);
 
-    const loadTableData = (data) => {    
+    const loadTableData = (data) => {   
         let url = `/lists`;
-
-        if (typeof data === 'object' && data !== null) {
-            const page = tablePage(data);
-            setCurrentPage(page);
-
-            url = `/lists?page=${page}`;
+    
+        if (typeof data === 'number' && data !== null) {
+            url = `/lists?page=${data}`;
         } else if (currentPage !== 1) {
             url = `/lists?page=${currentPage}`;
         }
+
+        // if (typeof data === 'object' && data !== null) {
+        //     const page = tablePage(data);
+        //     setCurrentPage(page);
+
+        //     url = `/lists?page=${page}`;
+        // } else if (currentPage !== 1) {
+        //     url = `/lists?page=${currentPage}`;
+        // }
 
         setLoading(true);
         axiosClient.get(url, {
@@ -46,9 +52,11 @@ export default function List() {
         })
         .then(({data}) => {
             setLoading(false);
+
             setLists(data.data);
             setPages(data.meta.links);
             setDisplayIndex(data.meta.total);
+            setLastPage(data.meta.last_page);
 
             setShowPagination(data.meta.total > data.meta.per_page ? true : false);
         }).catch(() => {
@@ -115,67 +123,65 @@ export default function List() {
                     </div>
             </div>
             <div className="card animated fadeInDown">
-                <table>
-                    <thead>
-                        {
-                            lists.length > 0 ? (
-                                <tr>
-                                    <th>Title</th>
-                                    <th style={{textAlign: 'right'}}>Date</th>
-                                    <th colSpan={2} style={{textAlign: 'right'}}>Acton</th>
-                                </tr>
-                            ) : (
-                                <tr>
-                                    <th colSpan={3}>No list yet, Create your first list !</th>
-                                </tr>
-                            )
-                        }
-                        
-                    </thead>
+
+            <table>
+                <thead>
                     {
                         loading ? (
-                            <tbody>
-                                <tr>
-                                    <td colSpan="3" className="text-center">Loading ...</td>
-                                </tr>
-                            </tbody>
+                            <tr>
+                                <th colSpan="3" className="text-center">Loading ...</th>
+                            </tr>
+                        ) : lists.length > 0 ? (
+                            <tr>
+                                <th>Title</th>
+                                <th style={{textAlign: 'right'}}>Date</th>
+                                <th colSpan={2} style={{textAlign: 'right'}}>Acton</th>
+                            </tr>
                         ) : (
-                            <tbody>
-                                {
-                                    lists.map((item, index) => (
-                                        <tr className="list"
-                                            key={index}
-                                            draggable
-                                            onDragStart={() => setDraggedIndex(index)}
-                                            onDragOver={(e) => e.preventDefault()}
-                                            onDrop={() => handleDrop(index)}
-                                        >
-                                            <td>{item.description}</td>
-                                            <td style={{textAlign: 'right'}}>{createdAt(item.created_at)}</td>
-                                            <td style={{textAlign: 'right'}}>
-                                                <Link to={`/lists/${item.id}`} className="btn-icon icon-orange"><FiEdit /></Link>
-                                                &nbsp;
-                                                <button onClick={ev => onDelete(item.id)} className="btn-icon icon-delete"><MdDelete /></button>
-                                            </td>
-                                        </tr>
-                                    )) 
-                                }
-                            </tbody>
+                            <tr>
+                                <th colSpan={3}>No list yet, Create your first list !</th>
+                            </tr>
                         )
                     }
-                </table>
+                </thead>
                 {
-                    showPagination && (<Pagination data={pages} onTrigger={loadTableData}></Pagination>)
+                    ! loading && lists.length > 0 && (
+                        <tbody>
+                            {
+                                lists.map((item, index) => (
+                                    <tr className="list"
+                                        key={index}
+                                        draggable
+                                        onDragStart={() => setDraggedIndex(index)}
+                                        onDragOver={(e) => e.preventDefault()}
+                                        onDrop={() => handleDrop(index)}
+                                    >
+                                        <td>{item.description}</td>
+                                        <td style={{textAlign: 'right'}}>{createdAt(item.created_at)}</td>
+                                        <td style={{textAlign: 'right'}}>
+                                            <Link to={`/lists/${item.id}`} className="btn-icon icon-orange"><FiEdit /></Link>
+                                            &nbsp;
+                                            <button onClick={ev => onDelete(item.id)} className="btn-icon icon-delete"><MdDelete /></button>
+                                        </td>
+                                    </tr>
+                                )) 
+                            }
+                        </tbody>
+                    )
                 }
+            </table>
+            {
+                showPagination && (<Pagination data={pages} onTrigger={loadTableData} lastPage={lastPage}></Pagination>)
+            }
             </div>
         </div>
     );
 }
 
-function tablePage(data) {
-    const urlString = data.url;
-    const position = parseInt(urlString.search("page=")) + 5;
-    const page = urlString.substring(position);
+// function tablePage(data) {
+//     const urlString = data.url;
+//     const position = parseInt(urlString.search("page=")) + 5;
+//     const page = urlString.substring(position);
 
-    return page;
-}
+//     return page;
+// }

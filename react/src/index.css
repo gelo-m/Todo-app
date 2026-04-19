@@ -278,6 +278,44 @@ table > tbody > tr > td.list-form {
     background-color: #8104f69a;
     cursor: default;
 }
+
+.pagination-item-arrow {
+    list-style: none;
+    cursor: default;
+    color: #8104f69a;
+    background-color: inherit;
+}
+
+.last-page {
+    list-style: none;
+    margin: 3px;
+    padding: 7px;
+    background-color: inherit;
+    width: fit-content;
+    text-align: center;
+    font-size: 15px;
+}
+
+.pagination-input-number {
+    list-style: none;
+    cursor: default;
+    background-color: inherit;
+    width: 60px;
+}
+
+.pagination-input-number > input {
+    outline: 0;
+    width: inherit;
+    text-align: center;
+    border-radius: 5px;
+    border: 2px solid #e6e6e6;
+    margin: 3px 8px;
+    padding: 8px;
+    box-sizing: border-box;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
 .active {
     background-color: #8104f6;
 }
@@ -496,3 +534,36 @@ tr.dragging {
     background-color: #f9f9f9;
     cursor: pointer;
 }
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.loader {
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #3498db;
+    width: 120px;
+    height: 120px;
+    -webkit-animation: spin 2s linear infinite; /* Safari */
+    animation: spin 2s linear infinite;
+  }
+  
+  /* Safari */
+  @-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }

@@ -37,6 +37,7 @@ export default function List() {
             })
             .then(({data}) => {
                 const head = data.data[0];
+
                 if (head) setList(head);
             })
             .catch(() => {});
