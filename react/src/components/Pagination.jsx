@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FaArrowAltCircleLeft } from "react-icons/fa";
 import { FaArrowAltCircleRight } from "react-icons/fa";
 
-export default function Pagination({data, onTrigger, lastPage}) {
+export default function Pagination({data, onTrigger, lastPage, isLoading}) {
     const [currentPage, setCurrentPage] = useState(1);
 
     const goToNextPage = () => {
@@ -42,18 +42,19 @@ export default function Pagination({data, onTrigger, lastPage}) {
 
     return (
         <>
-        <ul className="pagination">
+        <ul className={isLoading ? 'hide-pagination' : 'pagination'}>
             <li className="pagination-item-arrow">
-                <button className="btn-icon icon-green" onClick={goToPrevPage}><FaArrowAltCircleLeft /></button>
+                <button className={`btn-icon icon-green ${isLoading ? 'icon-disabled' : ''}`} disabled={isLoading} onClick={goToPrevPage}><FaArrowAltCircleLeft /></button>
             </li>
             <li className="pagination-input-number">
                 <input type="number" value={currentPage}
+                    disabled={isLoading}
                     onKeyDown={handleKeyDown}
                     onChange={e => setCurrentPage(e.target.value)}
                 /></li>
             <li className="last-page"><span>/ {lastPage}</span></li>
             <li className="pagination-item-arrow">
-                <button className="btn-icon icon-green" onClick={goToNextPage}><FaArrowAltCircleRight /></button>
+                <button className={`btn-icon icon-green ${isLoading ? 'icon-disabled' : ''}`} disabled={isLoading} onClick={goToNextPage}><FaArrowAltCircleRight /></button>
             </li>
         </ul>
             

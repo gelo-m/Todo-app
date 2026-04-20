@@ -30,16 +30,20 @@ class ListController extends Controller
         }
 
         if (isset($filters->description) && $filters->description != '') {
-            $whereClause[] = ['description', $filters->description];
+            $whereClause[] = ['description', 'LIKE', ''.$filters->description.'%'];
         }
 
         $whereClause[] = ['user_id', Auth::user()->id];
 
         if (isset($filters->id) && $filters->id != '') {
             $whereClause[] = ['id', $filters->id];
-            $lists = Lists::query()->where($whereClause)->with('listDetail')->orderBy('display_index')->get();
+            $lists = Lists::query()->select()->where($whereClause)
+                ->with(['listDetail' => function ($query) {
+                    $query->select('id', 'list_id', 'description', 'display_index');
+                }])
+            ->orderBy('display_index')->first();
         } else {
-            $lists = Lists::query()->where($whereClause)->orderBy('display_index')->paginate(70);
+            $lists = Lists::query()->where($whereClause)->orderBy('display_index')->paginate(20);
         }
 
         return ListResource::collection($lists);

@@ -16,11 +16,14 @@ return new class extends Migration
     {
         Schema::create($this->table, function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('user_id');
+            $table->unsignedBigInteger('user_id');
             $table->bigInteger('display_index');
-            $table->mediumText('description')->index();
+            $table->mediumText('description');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index('user_id');
+            $table->index(['user_id', 'display_index']);
         });
     }
 

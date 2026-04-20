@@ -12,13 +12,6 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function current(Request $request)
-    {
-        return new UserResource(
-            $request->user()->load('lists')
-        );
-    }
-
     /**
      * Display a listing of the resource.
      *

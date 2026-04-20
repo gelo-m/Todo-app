@@ -270,6 +270,10 @@ table > tbody > tr > td.list-form {
     padding: 0px;
 }
 
+.hide-pagination {
+    display: none;
+}
+
 .pagination-item {
     color: #efefef;
     list-style: none;
@@ -505,6 +509,10 @@ td .draggable-element:active {
 
 .icon-green {
     color: #00a762;
+}
+
+.icon-disabled {
+    color: #ccc;
 }
 
 .icon-delete {

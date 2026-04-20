@@ -20,11 +20,9 @@ use App\Http\Resources\UserResource;
 */
 
 Route::middleware('auth:sanctum')->group(function() {
-    // Route::get('/user', function (Request $request) {
-    //     // return $request->user();       
-    // });
-
-    Route::get('/user', [UserController::class, 'current']);
+    Route::get('/user', function (Request $request) {
+        return $request->user();       
+    });
 
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::apiResource('/users', UserController::class);

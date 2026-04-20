@@ -16,12 +16,15 @@ return new class extends Migration
     {
         Schema::create($this->table, function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('list_id');
+            $table->unsignedBigInteger('list_id');
             $table->bigInteger('display_index');
-            $table->mediumText('description')->index();
+            $table->mediumText('description');
             $table->boolean('is_complete')->default(0);
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index('list_id');
+            $table->index(['list_id', 'display_index']);
         });
     }
 

@@ -5,37 +5,23 @@ import { IoIosAddCircle } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { IoCreateOutline } from "react-icons/io5";
 
-export default function ListDetailData({data, user}) {
-// function DebouncedInput(items, index) {
-//     const [inputValue, setInputValue] = useState('');
-//     const [debouncedValue, setDebouncedValue] = useState('');
+// function useDebounce(value, delay) {
+//     const [debouncedValue, setDebouncedValue] = useState(value);
   
 //     useEffect(() => {
-//       // Set a timer to update the debounced value after 500ms
-//       const timer = setTimeout(() => {
-//         setDebouncedValue(inputValue);
-//         handleListDetailUpdate();
-//       }, 1000);
+//       // Set a timer to update the debounced value after the delay
+//       const handler = setTimeout(() => {
+//         setDebouncedValue(value);
+//       }, delay);
   
-//       // Cleanup function: clears the timer if inputValue changes again before 500ms
-//       return () => clearTimeout(timer);
-//     }, [inputValue]);
+//       // Cleanup: cancel the timer if the value changes again before delay finishes
+//       return () => clearTimeout(handler);
+//     }, [value, delay]);
   
-//     return (
-//         <input 
-//             type="text" 
-//             className={`list-description ${items.is_complete ? 'completed' : ''}`}
-//             placeholder="Enter Title Item" 
-//             value={items.description}
-//             onChange={(e) => {
-//                 const updatedItems = [...listItem];
-//                 updatedItems[index].description = e.target.value;
-//                 setListItem(updatedItems);
-//             }}
-//         />
-//     );
+//     return debouncedValue;
 // }
 
+export default function ListDetailData({data, user}) {
     useEffect(() => {
         if (data) {
             setListItem(data.detail);

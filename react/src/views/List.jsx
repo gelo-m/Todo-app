@@ -21,7 +21,7 @@ export default function List() {
     const [indexStartAt, setIndexStartAt] = useState(0);
 
     useEffect(() => {
-        if (user?.id) {
+        if (user.id) {
             loadTableData();
         }
     }, [user]);
@@ -31,8 +31,10 @@ export default function List() {
     
         if (typeof data === 'number' && data !== null) {
             url = `/lists?page=${data}`;
-        } else if (data !== 1) {
+        } else if (typeof data !== 'undefined' && data !== 1) {
             url = `/lists?page=${data}`;
+        } else {
+            url = `/lists?page=1`;
         }
 
         // if (typeof data === 'object' && data !== null) {
@@ -174,7 +176,7 @@ export default function List() {
                 }
             </table>
             {
-                showPagination && (<Pagination data={pages} onTrigger={loadTableData} lastPage={lastPage}></Pagination>)
+                showPagination && (<Pagination data={pages} onTrigger={loadTableData} lastPage={lastPage} isLoading={loading}></Pagination>)
             }
             </div>
         </div>
