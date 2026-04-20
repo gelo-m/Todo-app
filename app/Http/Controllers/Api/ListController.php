@@ -41,7 +41,7 @@ class ListController extends Controller
                 ->with(['listDetail' => function ($query) {
                     $query->select('id', 'list_id', 'description', 'display_index');
                 }])
-            ->orderBy('display_index')->first();
+            ->orderBy('display_index')->get();
         } else {
             $lists = Lists::query()->where($whereClause)->orderBy('display_index')->paginate(20);
         }
