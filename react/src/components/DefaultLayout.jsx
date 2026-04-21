@@ -31,7 +31,7 @@ export default function DefaultLayout() {
             <aside>
                 {/* <Link to="/dashboard">Dashboard</Link> */}
                 {/* <Link to="/users">Users</Link> */}
-                <Link to="/lists">My Todo List</Link>
+                <Link to="/lists">My To-do List</Link>
             </aside>
             <div className="content">
                 <header>

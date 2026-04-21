@@ -111,7 +111,7 @@ export default function List() {
     return (
         <div>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                <h1>My Todo List</h1>
+                <h1>My To-do List</h1>
                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
                     <input 
                         type="text" 

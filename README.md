@@ -1,4 +1,4 @@
-# Todo App
+# To-do App
 
 An task list app build with laravel 9 and react v6
 
