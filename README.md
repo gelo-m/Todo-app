@@ -10,7 +10,6 @@ An task list app build with laravel 9 and react v6
  copy .env.example .env
  composer install
  php artisan key:generate
- php artisan make:schema
  php artisan migrate
  php artisan db:seed
  php artisan optimize
