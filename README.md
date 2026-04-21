@@ -25,5 +25,7 @@ php artisan serve
 yarn run dev
 ```
 # Credentials
+```
 gmail: user@test.com
 password: User@12345
+```
