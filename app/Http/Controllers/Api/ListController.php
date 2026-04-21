@@ -39,7 +39,7 @@ class ListController extends Controller
             $whereClause[] = ['id', $filters->id];
             $lists = Lists::query()->select()->where($whereClause)
                 ->with(['listDetail' => function ($query) {
-                    $query->select('id', 'list_id', 'description', 'display_index');
+                    $query->select('id', 'list_id', 'description', 'display_index', 'is_complete');
                 }])
             ->orderBy('display_index')->get();
         } else {
