@@ -1,6 +1,6 @@
 # Todo App
 
-An inventory system for web and POS.
+An task list app build with laravel 9 and react v6
 
 # Installation Steps
 1. Clone the project from this repository to any of your directory.
