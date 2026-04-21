@@ -62,7 +62,7 @@ class ListSeeder extends Seeder
             $details = [];
         
             foreach ($listIds as $listId) {
-                for ($child = 0; $child < 5; $child++) {
+                for ($child = 0; $child < 2; $child++) {
                     $details[] = [
                         'list_id' => $listId,
                         'display_index' => $child,
