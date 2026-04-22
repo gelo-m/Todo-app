@@ -18,6 +18,7 @@ An task list app build with laravel 9 and react v6
 Run the following commands:
 ```bash
 composer install
+npm install
 cd react && yarn install
 cd .. && php artisan serve
 cd react && yarn run dev
