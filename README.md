@@ -7,7 +7,6 @@ An task list app build with laravel 9 and react v6
 2. Run the following commands:
 
 ```bash
- copy .env.example .env
  composer install
  php artisan key:generate
  php artisan migrate
